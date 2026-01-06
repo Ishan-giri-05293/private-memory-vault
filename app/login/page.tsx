@@ -19,8 +19,18 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+       auth,
+       email,
+       password
+      );
+
+      const token = await userCredential.user.getIdToken();
+
+      document.cookie = `firebase-auth=${token}; path=/; max-age=86400`;
+
       router.push("/");
+
     } catch (err: any) {
       setError("Invalid email or password");
     } finally {
