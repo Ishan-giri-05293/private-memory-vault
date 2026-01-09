@@ -1,14 +1,13 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Geist } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
-import "./globals.css"
-import Header from "@/components/Header";
+import type React from "react";
+import type { Metadata } from "next";
+import { Geist } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import "./globals.css";
 
 const geist = Geist({
   subsets: ["latin"],
   weight: ["300", "400", "500"],
-})
+});
 
 export const metadata: Metadata = {
   title: "A Space for You",
@@ -31,22 +30,21 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-icon.png",
   },
-}
+};
 
+import Header from "@/components/Header";
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={`${geist.className} antialiased`}>
+      <body>
         <Header />
         {children}
-        <Analytics />
       </body>
     </html>
   );
 }
-

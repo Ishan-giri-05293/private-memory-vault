@@ -1,7 +1,11 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Plus } from "lucide-react"
+"use client";
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Plus } from "lucide-react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 // Sample data
 const goals = [
@@ -23,7 +27,13 @@ const goals = [
     targetDate: "Ongoing",
     status: "In Progress",
   },
-]
+];
+
+const logout = async () => {
+  await signOut(auth);
+  document.cookie = "firebase-auth=; path=/; max-age=0";
+  window.location.href = "/login";
+};
 
 export default function GoalsPage() {
   return (
@@ -32,7 +42,9 @@ export default function GoalsPage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="container mx-auto px-6 py-6 flex items-center justify-between">
           <Link href="/">
-            <h1 className="text-lg font-light tracking-wide text-foreground">A Space for Arunima</h1>
+            <h1 className="text-lg font-light tracking-wide text-foreground">
+              A Space for Arunima
+            </h1>
           </Link>
           <nav className="flex items-center gap-8">
             <Link
@@ -41,7 +53,10 @@ export default function GoalsPage() {
             >
               Memories
             </Link>
-            <Link href="/goals" className="text-sm font-light text-foreground transition-colors">
+            <Link
+              href="/goals"
+              className="text-sm font-light text-foreground transition-colors"
+            >
               Goals
             </Link>
             <Link
@@ -50,6 +65,12 @@ export default function GoalsPage() {
             >
               Promise
             </Link>
+            <button
+              onClick={logout}
+              className="text-sm text-neutral-600 hover:text-black"
+            >
+              Log out
+            </button>
           </nav>
         </div>
       </header>
@@ -59,9 +80,12 @@ export default function GoalsPage() {
         <div className="space-y-12">
           {/* Title Section */}
           <div className="space-y-4">
-            <h2 className="text-3xl md:text-4xl font-light text-foreground">Goals & Milestones</h2>
+            <h2 className="text-3xl md:text-4xl font-light text-foreground">
+              Goals & Milestones
+            </h2>
             <p className="text-base font-light text-muted-foreground leading-relaxed max-w-2xl">
-              Quiet intentions. Patient progress. A reflection of who you're becoming.
+              Quiet intentions. Patient progress. A reflection of who you're
+              becoming.
             </p>
           </div>
 
@@ -86,11 +110,21 @@ export default function GoalsPage() {
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="space-y-2 flex-1">
-                    <h3 className="text-lg font-light text-foreground">{goal.title}</h3>
+                    <h3 className="text-lg font-light text-foreground">
+                      {goal.title}
+                    </h3>
                     <div className="flex flex-wrap items-center gap-4 text-sm font-light text-muted-foreground">
                       <span>{goal.targetDate}</span>
                       <span className="text-border">•</span>
-                      <span className={goal.status === "In Progress" ? "text-foreground/70" : ""}>{goal.status}</span>
+                      <span
+                        className={
+                          goal.status === "In Progress"
+                            ? "text-foreground/70"
+                            : ""
+                        }
+                      >
+                        {goal.status}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -100,5 +134,5 @@ export default function GoalsPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

@@ -1,7 +1,11 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Plus } from "lucide-react"
+"use client";
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Plus } from "lucide-react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 // Sample data - in a real app this would come from a database
 const memories = [
@@ -20,7 +24,13 @@ const memories = [
     title: "Morning coffee ritual begins",
     date: "January 8, 2023",
   },
-]
+];
+
+const logout = async () => {
+  await signOut(auth);
+  document.cookie = "firebase-auth=; path=/; max-age=0";
+  window.location.href = "/login";
+};
 
 export default function VaultPage() {
   return (
@@ -29,10 +39,15 @@ export default function VaultPage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="container mx-auto px-6 py-6 flex items-center justify-between">
           <Link href="/">
-            <h1 className="text-lg font-light tracking-wide text-foreground">A Space for Arunima</h1>
+            <h1 className="text-lg font-light tracking-wide text-foreground">
+              A Space for Arunima
+            </h1>
           </Link>
           <nav className="flex items-center gap-8">
-            <Link href="/vault" className="text-sm font-light text-foreground transition-colors">
+            <Link
+              href="/vault"
+              className="text-sm font-light text-foreground transition-colors"
+            >
               Memories
             </Link>
             <Link
@@ -47,6 +62,12 @@ export default function VaultPage() {
             >
               Promise
             </Link>
+            <button
+              onClick={logout}
+              className="text-sm text-neutral-600 hover:text-black"
+            >
+              Log out
+            </button>
           </nav>
         </div>
       </header>
@@ -56,7 +77,9 @@ export default function VaultPage() {
         <div className="space-y-12">
           {/* Title Section */}
           <div className="space-y-4">
-            <h2 className="text-3xl md:text-4xl font-light text-foreground">Your Memory Vault</h2>
+            <h2 className="text-3xl md:text-4xl font-light text-foreground">
+              Your Memory Vault
+            </h2>
             <p className="text-base font-light text-muted-foreground leading-relaxed max-w-2xl">
               Each moment preserved with care. A collection that grows with you.
             </p>
@@ -87,7 +110,9 @@ export default function VaultPage() {
                     <h3 className="text-base font-light text-foreground group-hover:text-foreground/80 transition-colors">
                       {memory.title}
                     </h3>
-                    <p className="text-sm font-light text-muted-foreground">{memory.date}</p>
+                    <p className="text-sm font-light text-muted-foreground">
+                      {memory.date}
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -96,5 +121,5 @@ export default function VaultPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

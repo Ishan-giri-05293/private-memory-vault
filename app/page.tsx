@@ -1,5 +1,15 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+"use client";
+
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+
+const logout = async () => {
+  await signOut(auth);
+  document.cookie = "firebase-auth=; path=/; max-age=0";
+  window.location.href = "/login";
+};
 
 export default function LandingPage() {
   return (
@@ -7,7 +17,9 @@ export default function LandingPage() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="container mx-auto px-6 py-6 flex items-center justify-between">
-          <h1 className="text-lg font-light tracking-wide text-foreground">A Space for Arunima</h1>
+          <h1 className="text-lg font-light tracking-wide text-foreground">
+            A Space for Arunima
+          </h1>
           <nav className="flex items-center gap-8">
             <Link
               href="/vault"
@@ -27,6 +39,12 @@ export default function LandingPage() {
             >
               Promise
             </Link>
+            <button
+              onClick={logout}
+              className="text-sm text-neutral-600 hover:text-black"
+            >
+              Log out
+            </button>
           </nav>
         </div>
       </header>
@@ -39,16 +57,12 @@ export default function LandingPage() {
               A quiet place to hold <span className="italic">your moments</span>
             </p>
             <p className="text-base md:text-lg font-light text-muted-foreground leading-relaxed max-w-2xl mx-auto text-pretty">
-  Store the memories that matter.
-  <br />
-  Keep the promises you make.
-  <br />
-  <span className="font-normal">
-    Build a vault of your life.
-  </span>
-</p>
-
-
+              Store the memories that matter.
+              <br />
+              Keep the promises you make.
+              <br />
+              <span className="font-normal">Build a vault of your life.</span>
+            </p>
           </div>
 
           <div className="pt-6">
@@ -66,9 +80,12 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-border/40">
         <div className="container mx-auto text-center">
-          <p className="text-sm font-light text-muted-foreground"> This will grow with you.</p>
+          <p className="text-sm font-light text-muted-foreground">
+            {" "}
+            This will grow with you.
+          </p>
         </div>
       </footer>
     </div>
-  )
+  );
 }
