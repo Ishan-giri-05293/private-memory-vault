@@ -11,6 +11,7 @@ import {
   List,
   CalendarDays,
   X,
+  Pencil,
 } from "lucide-react";
 
 type GoalStatus = "Not Started" | "In Progress" | "Achieved";
@@ -26,7 +27,7 @@ type Milestone = {
 type Goal = {
   id: string;
   title: string;
-  targetDate: string; // keep as string (user friendly, ex: "Dec 2026" or "2026-12-01")
+  targetDate: string;
   status: GoalStatus;
   progress: number; // 0..100
   futureMessage: string;
@@ -48,10 +49,7 @@ function safeParseGoals(raw: string | null): Goal[] {
   }
 }
 
-// Try to convert "YYYY-MM-DD" to timestamp for sorting timeline.
-// If user uses "Dec 2026" etc, it will fall back to Infinity (end).
 function dateToSortValue(targetDate: string) {
-  // matches 2026-12-01
   if (/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) {
     const t = new Date(targetDate).getTime();
     return isNaN(t) ? Number.POSITIVE_INFINITY : t;
@@ -62,6 +60,9 @@ function dateToSortValue(targetDate: string) {
 export default function GoalsPage() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+
+  // edit mode
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   // list controls
   const [search, setSearch] = useState("");
@@ -91,8 +92,8 @@ export default function GoalsPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
   }, [goals]);
 
-  // Open/Close modal
-  const openModal = () => {
+  const openAddModal = () => {
+    setEditingId(null);
     setTitle("");
     setTargetDate("");
     setStatus("Not Started");
@@ -103,9 +104,21 @@ export default function GoalsPage() {
     setIsOpen(true);
   };
 
+  const openEditModal = (goal: Goal) => {
+    setEditingId(goal.id);
+    setTitle(goal.title);
+    setTargetDate(goal.targetDate === "No date" ? "" : goal.targetDate);
+    setStatus(goal.status);
+    setProgress(goal.progress ?? 0);
+    setFutureMessage(goal.futureMessage ?? "");
+    setMilestones(goal.milestones ?? []);
+    setMilestoneText("");
+    setIsOpen(true);
+  };
+
   const closeModal = () => setIsOpen(false);
 
-  // Add milestone inside modal
+  // Milestones inside modal
   const addMilestone = () => {
     if (!milestoneText.trim()) return;
     const m: Milestone = {
@@ -127,29 +140,53 @@ export default function GoalsPage() {
     );
   };
 
-  // Add goal
-  const addGoal = () => {
+  const computedProgressFromMilestones = (ms: Milestone[], fallback: number) => {
+    if (ms.length === 0) return fallback;
+    return Math.round((ms.filter((m) => m.done).length / ms.length) * 100);
+  };
+
+  const saveGoal = () => {
     if (!title.trim()) return;
 
-    const computedProgress =
-      milestones.length > 0
-        ? Math.round(
-            (milestones.filter((m) => m.done).length / milestones.length) * 100
-          )
-        : progress;
+    const computedProgress = computedProgressFromMilestones(milestones, progress);
 
-    const newGoal: Goal = {
-      id: crypto.randomUUID(),
-      title: title.trim(),
-      targetDate: targetDate.trim() || "No date",
-      status,
-      progress: Math.max(0, Math.min(100, computedProgress)),
-      futureMessage: futureMessage.trim(),
-      milestones,
-      createdAt: Date.now(),
-    };
+    // ADD
+    if (!editingId) {
+      const newGoal: Goal = {
+        id: crypto.randomUUID(),
+        title: title.trim(),
+        targetDate: targetDate.trim() || "No date",
+        status,
+        progress: Math.max(0, Math.min(100, computedProgress)),
+        futureMessage: futureMessage.trim(),
+        milestones,
+        createdAt: Date.now(),
+      };
 
-    setGoals((prev) => [newGoal, ...prev]);
+      setGoals((prev) => [newGoal, ...prev]);
+      setIsOpen(false);
+      return;
+    }
+
+    // EDIT
+    setGoals((prev) =>
+      prev.map((g) =>
+        g.id === editingId
+          ? {
+              ...g,
+              title: title.trim(),
+              targetDate: targetDate.trim() || "No date",
+              status,
+              progress: Math.max(0, Math.min(100, computedProgress)),
+              futureMessage: futureMessage.trim(),
+              milestones,
+              achievedAt:
+                status === "Achieved" ? g.achievedAt ?? Date.now() : undefined,
+            }
+          : g
+      )
+    );
+
     setIsOpen(false);
   };
 
@@ -160,24 +197,26 @@ export default function GoalsPage() {
         if (g.id !== id) return g;
 
         if (g.status === "Achieved") {
-          // un-achieve
           return { ...g, status: "In Progress", achievedAt: undefined };
         }
 
-        // achieve
         setCelebrate({ title: g.title });
-        return { ...g, status: "Achieved", progress: 100, achievedAt: Date.now() };
+        return {
+          ...g,
+          status: "Achieved",
+          progress: 100,
+          achievedAt: Date.now(),
+        };
       })
     );
   };
 
-  // Delete
   const deleteGoal = (id: string) => {
     if (!confirm("Delete this goal?")) return;
     setGoals((prev) => prev.filter((g) => g.id !== id));
   };
 
-  // Toggle milestone in list (after created)
+  // Toggle milestone (on card)
   const toggleMilestoneDone = (goalId: string, milestoneId: string) => {
     setGoals((prev) =>
       prev.map((g) => {
@@ -187,7 +226,6 @@ export default function GoalsPage() {
           m.id === milestoneId ? { ...m, done: !m.done } : m
         );
 
-        // auto update progress if milestones exist
         let newProgress = g.progress;
         if (updated.length > 0) {
           newProgress = Math.round(
@@ -195,7 +233,6 @@ export default function GoalsPage() {
           );
         }
 
-        // If progress hits 100 and not achieved, keep status In Progress unless user marks achieved.
         return { ...g, milestones: updated, progress: newProgress };
       })
     );
@@ -204,14 +241,10 @@ export default function GoalsPage() {
   // Filter/Search
   const filteredGoals = useMemo(() => {
     const s = search.trim().toLowerCase();
-
     let data = [...goals];
 
-    if (filter === "Active") {
-      data = data.filter((g) => g.status !== "Achieved");
-    } else if (filter === "Achieved") {
-      data = data.filter((g) => g.status === "Achieved");
-    }
+    if (filter === "Active") data = data.filter((g) => g.status !== "Achieved");
+    if (filter === "Achieved") data = data.filter((g) => g.status === "Achieved");
 
     if (s) {
       data = data.filter((g) => {
@@ -227,24 +260,19 @@ export default function GoalsPage() {
     return data;
   }, [goals, search, filter]);
 
-  // Sort
   const sortedGoals = useMemo(() => {
-    // achieved at bottom for List view
     const rank = (s: GoalStatus) =>
       s === "Achieved" ? 2 : s === "In Progress" ? 1 : 0;
 
     if (view === "Timeline") {
-      // timeline: earliest date first, no-date at end
       return [...filteredGoals].sort((a, b) => {
         const da = dateToSortValue(a.targetDate);
         const db = dateToSortValue(b.targetDate);
         if (da !== db) return da - db;
-        // fallback: createdAt newest first
         return b.createdAt - a.createdAt;
       });
     }
 
-    // List: active first, then newest
     return [...filteredGoals].sort((a, b) => {
       const r = rank(a.status) - rank(b.status);
       if (r !== 0) return r;
@@ -273,25 +301,25 @@ export default function GoalsPage() {
             </p>
           </div>
 
-          {/* Controls */}
-          <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+          {/* Controls (PHONE FIRST) */}
+          <div className="flex flex-col gap-4">
             {/* Search */}
-            <div className="relative w-full md:max-w-md">
+            <div className="relative w-full">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search goals…"
-                className="w-full pl-9 pr-3 py-2 border border-border rounded-md outline-none focus:ring-2 focus:ring-neutral-200 bg-white"
+                className="w-full pl-9 pr-3 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-neutral-200 bg-white"
               />
             </div>
 
-            {/* Filter + View */}
-            <div className="flex items-center gap-2 justify-between md:justify-end">
+            {/* Buttons row */}
+            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3">
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value as FilterMode)}
-                className="px-3 py-2 border border-border rounded-md outline-none focus:ring-2 focus:ring-neutral-200 bg-white text-sm font-light"
+                className="w-full px-3 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-neutral-200 bg-white text-sm font-light"
               >
                 <option value="All">All</option>
                 <option value="Active">Active</option>
@@ -300,7 +328,7 @@ export default function GoalsPage() {
 
               <Button
                 variant="outline"
-                className="border-border bg-transparent hover:bg-accent/50"
+                className="w-full border-border bg-transparent hover:bg-accent/50 rounded-lg py-6"
                 onClick={() => setView((v) => (v === "List" ? "Timeline" : "List"))}
               >
                 {view === "List" ? (
@@ -315,13 +343,11 @@ export default function GoalsPage() {
               </Button>
 
               <Button
-                onClick={openModal}
-                size="lg"
-                variant="outline"
-                className="border-border hover:bg-accent/50 text-foreground font-light text-sm px-5 py-5 gap-3 bg-transparent"
+                onClick={openAddModal}
+                className="col-span-2 sm:col-span-1 w-full bg-black text-white hover:opacity-90 rounded-lg py-6"
               >
-                <Plus className="w-4 h-4" />
-                Add
+                <Plus className="w-4 h-4 mr-2" />
+                Add Goal
               </Button>
             </div>
           </div>
@@ -346,7 +372,6 @@ export default function GoalsPage() {
                   className="p-8 bg-card hover:bg-accent/30 border-border transition-all"
                 >
                   <div className="flex flex-col gap-5">
-                    {/* Title row */}
                     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                       <div className="space-y-2">
                         <h3 className="text-lg font-light text-foreground">
@@ -364,7 +389,16 @@ export default function GoalsPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Button
+                          variant="outline"
+                          className="border-border bg-transparent hover:bg-accent/50"
+                          onClick={() => openEditModal(goal)}
+                        >
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+
                         <Button
                           variant="outline"
                           className="border-border bg-transparent hover:bg-accent/50"
@@ -412,7 +446,9 @@ export default function GoalsPage() {
                                 onChange={() => toggleMilestoneDone(goal.id, m.id)}
                                 className="mt-1"
                               />
-                              <span className={m.done ? "line-through opacity-70" : ""}>
+                              <span
+                                className={m.done ? "line-through opacity-70" : ""}
+                              >
                                 {m.text}
                               </span>
                             </label>
@@ -440,17 +476,17 @@ export default function GoalsPage() {
         </div>
       </main>
 
-      {/* Add Goal Modal */}
+      {/* Add/Edit Modal (BOTTOM SHEET on phone) */}
       {isOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/40 flex items-center justify-center px-4">
-          <div className="w-full max-w-xl bg-white rounded-xl border border-border shadow-lg p-6">
+        <div className="fixed inset-0 z-[100] bg-black/40 flex items-end sm:items-center justify-center">
+          <div className="w-full sm:max-w-xl bg-white rounded-t-2xl sm:rounded-2xl border border-border shadow-lg p-5 sm:p-6">
             <div className="flex items-start justify-between gap-4 mb-6">
               <div className="space-y-2">
                 <h3 className="text-xl font-light text-foreground">
-                  Add a new goal
+                  {editingId ? "Edit goal" : "Add a new goal"}
                 </h3>
                 <p className="text-sm font-light text-muted-foreground">
-                  Make it honest. Make it yours.
+                  Keep it honest. Keep it yours.
                 </p>
               </div>
 
@@ -468,21 +504,20 @@ export default function GoalsPage() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Goal title"
-                className="w-full px-3 py-2 border border-border rounded-md outline-none focus:ring-2 focus:ring-neutral-200"
+                className="w-full px-3 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-neutral-200"
               />
 
-              {/* You can keep it "Dec 2026" or set YYYY-MM-DD */}
               <input
                 value={targetDate}
                 onChange={(e) => setTargetDate(e.target.value)}
                 placeholder="Target date (ex: 2026-12-01 or Dec 2026)"
-                className="w-full px-3 py-2 border border-border rounded-md outline-none focus:ring-2 focus:ring-neutral-200"
+                className="w-full px-3 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-neutral-200"
               />
 
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as GoalStatus)}
-                className="w-full px-3 py-2 border border-border rounded-md outline-none focus:ring-2 focus:ring-neutral-200"
+                className="w-full px-3 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-neutral-200"
               >
                 <option value="Not Started">Not Started</option>
                 <option value="In Progress">In Progress</option>
@@ -510,7 +545,7 @@ export default function GoalsPage() {
                 value={futureMessage}
                 onChange={(e) => setFutureMessage(e.target.value)}
                 placeholder="Future message (optional) — If you ever feel like quitting..."
-                className="w-full min-h-[90px] px-3 py-2 border border-border rounded-md outline-none focus:ring-2 focus:ring-neutral-200"
+                className="w-full min-h-[100px] px-3 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-neutral-200"
               />
 
               {/* Milestones */}
@@ -524,7 +559,7 @@ export default function GoalsPage() {
                     value={milestoneText}
                     onChange={(e) => setMilestoneText(e.target.value)}
                     placeholder="Add a milestone"
-                    className="flex-1 px-3 py-2 border border-border rounded-md outline-none focus:ring-2 focus:ring-neutral-200"
+                    className="flex-1 px-3 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-neutral-200"
                   />
                   <Button
                     type="button"
@@ -541,7 +576,7 @@ export default function GoalsPage() {
                     {milestones.map((m) => (
                       <div
                         key={m.id}
-                        className="flex items-start justify-between gap-3 border border-border rounded-md px-3 py-2"
+                        className="flex items-start justify-between gap-3 border border-border rounded-lg px-3 py-2"
                       >
                         <label className="flex items-start gap-3 cursor-pointer select-none">
                           <input
@@ -569,26 +604,27 @@ export default function GoalsPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 mt-8">
+            {/* Buttons (thumb-friendly) */}
+            <div className="flex gap-3 mt-6">
               <Button
                 variant="outline"
-                className="border-border bg-transparent hover:bg-accent/50"
+                className="flex-1 border-border bg-transparent hover:bg-accent/50 py-6 rounded-lg"
                 onClick={closeModal}
               >
                 Cancel
               </Button>
               <Button
-                onClick={addGoal}
-                className="bg-black text-white hover:opacity-90"
+                onClick={saveGoal}
+                className="flex-1 bg-black text-white hover:opacity-90 py-6 rounded-lg"
               >
-                Save goal
+                {editingId ? "Save changes" : "Save goal"}
               </Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Celebration modal */}
+      {/* Celebration */}
       {celebrate && (
         <div className="fixed inset-0 z-[110] bg-black/40 flex items-center justify-center px-4">
           <div className="w-full max-w-md bg-white rounded-xl border border-border shadow-lg p-6 text-center">
