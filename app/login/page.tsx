@@ -1,38 +1,43 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     setError("");
-    setLoading(true);
 
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter your email and password.");
+      return;
+    }
+
+    setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(
-       auth,
-       email,
-       password
+        auth,
+        email.trim(),
+        password
       );
 
       const token = await userCredential.user.getIdToken();
 
-      document.cookie = `firebase-auth=${token}; path=/; max-age=86400`;
+      document.cookie = `firebase-auth=${token}; path=/; max-age=86400; samesite=lax`;
 
       router.push("/");
-
     } catch (err: any) {
-      setError("Invalid email or password");
+      setError("Wrong email or password.");
     } finally {
       setLoading(false);
     }
@@ -40,46 +45,56 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
-      <form
-        onSubmit={handleLogin}
-        className="w-full max-w-sm bg-white p-6 rounded-xl shadow-sm"
-      >
-        <h1 className="text-xl font-semibold mb-6 text-center">
-          Private Access
-        </h1>
-
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full mb-4 px-3 py-2 border rounded-md focus:outline-none focus:ring"
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full mb-4 px-3 py-2 border rounded-md focus:outline-none focus:ring"
-        />
-
-        {error && (
-          <p className="text-sm text-red-600 mb-4 text-center">
-            {error}
+      <div className="w-full max-w-sm bg-white p-6 rounded-2xl border border-border shadow-sm">
+        {/* Title */}
+        <div className="text-center space-y-3 mb-8">
+          <h1 className="text-2xl font-light text-foreground">Welcome Aru💕</h1>
+          <p className="text-sm font-light text-muted-foreground">
+            Only you can access this space.
           </p>
-        )}
+        </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 rounded-md bg-black text-white hover:opacity-90 disabled:opacity-50"
-        >
-          {loading ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
+        {/* Inputs */}
+        <div className="space-y-4">
+          <input
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border border-border bg-white outline-none focus:ring-2 focus:ring-neutral-200"
+          />
+
+          <input
+            type="password"
+            autoComplete="current-password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border border-border bg-white outline-none focus:ring-2 focus:ring-neutral-200"
+          />
+
+          {error && (
+            <p className="text-sm text-red-600 font-light text-center">
+              {error}
+            </p>
+          )}
+
+          <Button
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full py-6 rounded-lg bg-black text-white hover:opacity-90 disabled:opacity-50"
+          >
+            {loading ? "Opening…" : "Enter"}
+          </Button>
+        </div>
+
+        {/* Footer note */}
+        <p className="text-xs font-light text-muted-foreground text-center mt-6">
+          This is private.
+        </p>
+      </div>
     </div>
   );
 }
