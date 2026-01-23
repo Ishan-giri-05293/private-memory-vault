@@ -2,53 +2,10 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-
-const logout = async () => {
-  await signOut(auth);
-  document.cookie = "firebase-auth=; path=/; max-age=0";
-  window.location.href = "/login";
-};
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
-        <div className="container mx-auto px-6 py-6 flex items-center justify-between">
-          <h1 className="text-lg font-light tracking-wide text-foreground">
-            A Space for Arunima
-          </h1>
-          <nav className="flex items-center gap-8">
-            <Link
-              href="/vault"
-              className="text-sm font-light text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Memories
-            </Link>
-            <Link
-              href="/goals"
-              className="text-sm font-light text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Goals
-            </Link>
-            <Link
-              href="/promise"
-              className="text-sm font-light text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Promise
-            </Link>
-            <button
-              onClick={logout}
-              className="text-sm text-neutral-600 hover:text-black"
-            >
-              Log out
-            </button>
-          </nav>
-        </div>
-      </header> */}
-
       {/* Hero Section */}
       <main className="flex-1 flex items-center justify-center px-6 pt-20 pb-20">
         <div className="max-w-3xl mx-auto text-center space-y-12">
@@ -56,6 +13,7 @@ export default function LandingPage() {
             <p className="text-4xl md:text-5xl lg:text-6xl font-light leading-tight text-balance text-foreground">
               A quiet place to hold <span className="italic">your moments</span>
             </p>
+
             <p className="text-base md:text-lg font-light text-muted-foreground leading-relaxed max-w-2xl mx-auto text-pretty">
               Store the memories that matter.
               <br />
@@ -81,7 +39,6 @@ export default function LandingPage() {
       <footer className="py-8 px-6 border-t border-border/40">
         <div className="container mx-auto text-center">
           <p className="text-sm font-light text-muted-foreground">
-            {" "}
             This will grow with you.
           </p>
         </div>
