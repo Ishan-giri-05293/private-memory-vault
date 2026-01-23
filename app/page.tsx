@@ -23,13 +23,24 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="pt-6">
+          {/* Buttons (phone-first) */}
+          <div className="pt-4 space-y-4 max-w-sm mx-auto">
             <Button
               asChild
               size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-light text-base px-12 py-6 rounded-lg transition-all"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-light text-base px-10 py-7 rounded-lg transition-all"
             >
               <Link href="/vault">Enter Your Space</Link>
+            </Button>
+
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="w-full border-border bg-transparent hover:bg-accent/50 text-foreground font-light text-base px-10 py-7 rounded-lg transition-all"
+            >
+              <Link href="/goals?new=1">Add a Goal</Link>
+
             </Button>
           </div>
         </div>

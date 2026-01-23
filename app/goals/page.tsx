@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+
 import {
   Plus,
   Trash2,
@@ -58,6 +60,9 @@ function dateToSortValue(targetDate: string) {
 }
 
 export default function GoalsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [goals, setGoals] = useState<Goal[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -80,17 +85,6 @@ export default function GoalsPage() {
   const [futureMessage, setFutureMessage] = useState("");
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [milestoneText, setMilestoneText] = useState("");
-
-  // Load
-  useEffect(() => {
-    const stored = safeParseGoals(localStorage.getItem(STORAGE_KEY));
-    setGoals(stored);
-  }, []);
-
-  // Save
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
-  }, [goals]);
 
   const openAddModal = () => {
     setEditingId(null);
@@ -118,6 +112,27 @@ export default function GoalsPage() {
 
   const closeModal = () => setIsOpen(false);
 
+  // ✅ Load
+  useEffect(() => {
+    const stored = safeParseGoals(localStorage.getItem(STORAGE_KEY));
+    setGoals(stored);
+  }, []);
+
+  // ✅ Save
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
+  }, [goals]);
+
+  // ✅ Auto-open modal from /goals?new=1
+  useEffect(() => {
+    const shouldOpen = searchParams.get("new") === "1";
+    if (shouldOpen) {
+      openAddModal();
+      router.replace("/goals"); // clean url
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   // Milestones inside modal
   const addMilestone = () => {
     if (!milestoneText.trim()) return;
@@ -136,7 +151,7 @@ export default function GoalsPage() {
 
   const toggleMilestoneDoneInModal = (id: string) => {
     setMilestones((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, done: !m.done } : m))
+      prev.map((m) => (m.id === id ? { ...m, done: !m.done } : m)),
     );
   };
 
@@ -181,10 +196,10 @@ export default function GoalsPage() {
               futureMessage: futureMessage.trim(),
               milestones,
               achievedAt:
-                status === "Achieved" ? g.achievedAt ?? Date.now() : undefined,
+                status === "Achieved" ? (g.achievedAt ?? Date.now()) : undefined,
             }
-          : g
-      )
+          : g,
+      ),
     );
 
     setIsOpen(false);
@@ -207,7 +222,7 @@ export default function GoalsPage() {
           progress: 100,
           achievedAt: Date.now(),
         };
-      })
+      }),
     );
   };
 
@@ -223,18 +238,18 @@ export default function GoalsPage() {
         if (g.id !== goalId) return g;
 
         const updated = g.milestones.map((m) =>
-          m.id === milestoneId ? { ...m, done: !m.done } : m
+          m.id === milestoneId ? { ...m, done: !m.done } : m,
         );
 
         let newProgress = g.progress;
         if (updated.length > 0) {
           newProgress = Math.round(
-            (updated.filter((m) => m.done).length / updated.length) * 100
+            (updated.filter((m) => m.done).length / updated.length) * 100,
           );
         }
 
         return { ...g, milestones: updated, progress: newProgress };
-      })
+      }),
     );
   };
 
@@ -251,7 +266,7 @@ export default function GoalsPage() {
         const inTitle = g.title.toLowerCase().includes(s);
         const inMsg = (g.futureMessage || "").toLowerCase().includes(s);
         const inMilestones = (g.milestones || []).some((m) =>
-          m.text.toLowerCase().includes(s)
+          m.text.toLowerCase().includes(s),
         );
         return inTitle || inMsg || inMilestones;
       });
@@ -446,9 +461,7 @@ export default function GoalsPage() {
                                 onChange={() => toggleMilestoneDone(goal.id, m.id)}
                                 className="mt-1"
                               />
-                              <span
-                                className={m.done ? "line-through opacity-70" : ""}
-                              >
+                              <span className={m.done ? "line-through opacity-70" : ""}>
                                 {m.text}
                               </span>
                             </label>
@@ -604,7 +617,7 @@ export default function GoalsPage() {
               </div>
             </div>
 
-            {/* Buttons (thumb-friendly) */}
+            {/* Buttons */}
             <div className="flex gap-3 mt-6">
               <Button
                 variant="outline"
