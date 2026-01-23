@@ -14,7 +14,7 @@ const logout = async () => {
 export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
+      {/* Header
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="container mx-auto px-6 py-6 flex items-center justify-between">
           <h1 className="text-lg font-light tracking-wide text-foreground">
@@ -47,10 +47,10 @@ export default function LandingPage() {
             </button>
           </nav>
         </div>
-      </header>
+      </header> */}
 
       {/* Hero Section */}
-      <main className="flex-1 flex items-center justify-center px-6 pt-32 pb-20">
+      <main className="flex-1 flex items-center justify-center px-6 pt-20 pb-20">
         <div className="max-w-3xl mx-auto text-center space-y-12">
           <div className="space-y-6">
             <p className="text-4xl md:text-5xl lg:text-6xl font-light leading-tight text-balance text-foreground">

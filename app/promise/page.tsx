@@ -13,7 +13,7 @@ const logout = async () => {
 export default function PromisePage() {
   return (
     <div className="min-h-screen">
-      {/* Header */}
+      {/* Header
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
         <div className="container mx-auto px-6 py-6 flex items-center justify-between">
           <Link href="/">
@@ -48,10 +48,10 @@ export default function PromisePage() {
             </button>
           </nav>
         </div>
-      </header>
+      </header> */}
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 pt-32 pb-20 max-w-3xl">
+      <main className="container mx-auto px-6 pt-20 pb-20 max-w-3xl">
         <div className="space-y-16">
           {/* Title */}
           <div className="space-y-4">
