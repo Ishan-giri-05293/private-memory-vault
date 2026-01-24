@@ -59,7 +59,7 @@ function dateToSortValue(targetDate: string) {
   return Number.POSITIVE_INFINITY;
 }
 
-export default function GoalsPage() {
+function GoalsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -663,5 +663,14 @@ export default function GoalsPage() {
         </div>
       )}
     </div>
+  );
+}
+import { Suspense } from "react";
+
+export default function GoalsPage() {
+  return (
+    <Suspense fallback={null}>
+      <GoalsPageContent />
+    </Suspense>
   );
 }
