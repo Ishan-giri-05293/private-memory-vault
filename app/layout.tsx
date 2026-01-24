@@ -1,13 +1,9 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
-
-const geist = Geist({
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-});
+import Navbar from "@/components/Navbar";
+import RabbitWrapper from "@/components/RabbitWrapper";
 
 export const metadata: Metadata = {
   title: "A Space for You",
@@ -32,16 +28,18 @@ export const metadata: Metadata = {
   },
 };
 
-import Navbar from "@/components/Navbar";
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body>
+      <body className="font-sans">
         <Navbar />
-        {children}
+        <RabbitWrapper>{children}</RabbitWrapper>
+        <Analytics />
       </body>
     </html>
   );
 }
-
