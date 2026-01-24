@@ -11,9 +11,15 @@ export default function RabbitWrapper({
   const pathname = usePathname();
 
   const showRabbits =
-    pathname === "/" ||
-    pathname.startsWith("/vault") ||
-    pathname.startsWith("/promise");
+  pathname === "/" ||
+  pathname.startsWith("/vault") ||
+  pathname.startsWith("/promise") ||
+  pathname.startsWith("/goals");
+
+//   const showRabbits =
+//     pathname === "/" ||
+//     pathname.startsWith("/vault") ||
+//     pathname.startsWith("/promise");
 
   return (
     <>
