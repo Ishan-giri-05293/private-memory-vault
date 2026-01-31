@@ -62,7 +62,8 @@ export default function Navbar() {
     }`;
 
   return (
-    <nav className="w-full sticky top-0 z-50 bg-white/90 backdrop-blur border-b">
+    <nav className="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
+
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Brand */}
         <Link href="/" className="font-semibold text-base text-black">

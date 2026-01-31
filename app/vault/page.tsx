@@ -203,7 +203,7 @@ export default function VaultPage() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               onClick={openAdd}
-              className="w-full sm:w-auto bg-black text-white hover:opacity-90 rounded-lg py-6"
+              className="w-full sm:w-auto bg-primary text-primary-foreground hover:opacity-90 hover:opacity-90 rounded-lg py-6"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Memory
@@ -356,7 +356,7 @@ export default function VaultPage() {
                     </p>
                     <button
                       onClick={clearMedia}
-                      className="text-xs text-neutral-600 hover:text-black"
+                      className="text-xs text-neutral-600 hover:text-foreground"
                     >
                       Remove
                     </button>
@@ -398,7 +398,7 @@ export default function VaultPage() {
                 Cancel
               </Button>
               <Button
-                className="flex-1 bg-black text-white hover:opacity-90 py-6 rounded-lg"
+                className="flex-1 bg-primary text-primary-foreground hover:opacity-90 hover:opacity-90 py-6 rounded-lg"
                 onClick={saveMemory}
               >
                 Save

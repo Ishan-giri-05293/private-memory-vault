@@ -11,64 +11,54 @@ export default function PromisePage() {
               Promise
             </h2>
             <p className="text-base md:text-lg font-light text-muted-foreground leading-relaxed">
-              This is not a website. It’s a place.
+              This is not just a website. It’s a quiet place that’s yours.
             </p>
           </div>
 
-          {/* Content Sections */}
-          <div className="space-y-12 text-base md:text-lg font-light text-muted-foreground leading-relaxed">
+          {/* Content */}
+          <div className="space-y-10 text-base md:text-lg font-light text-muted-foreground leading-relaxed">
+
             <section className="space-y-4">
-              <h3 className="text-xl font-light text-foreground">
-                This is yours
-              </h3>
               <p>
-                Every memory you save here belongs to you. Not to algorithms.
-                Not to timelines. Not to anyone else. This space is private,
-                quiet, and only for you.
+                I don’t know where life will take you. I don’t know how much things will change.
+                But I know that the moments you’ve lived, the smiles you’ve had,
+                and the version of you that exists today deserves to be remembered.
+              </p>
+              <p className="text-foreground">
+                Thank you for everything.
               </p>
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-xl font-light text-foreground">
-                Built for the long term
-              </h3>
               <p>
-                This is made for the version of you who will open it ten years
-                later. The photos. The videos. The tiny moments that once felt
-                ordinary… but later become priceless.
+                This space is for the memories that matter.
               </p>
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-xl font-light text-foreground">
-                Privacy by design
-              </h3>
               <p>
-                No likes. No followers. No public profiles. No noise. Just a
-                calm place to remember, reflect, and grow. Some parts of life
-                should stay yours.
+                There are no eyes here. No noise. No world watching.
+                Just a calm corner of the internet where your life can quietly exist,
+                exactly the way it was.
               </p>
             </section>
 
             <section className="space-y-4">
-              <h3 className="text-xl font-light text-foreground">
-                Your data, your control
-              </h3>
               <p>
-                You will always be in control of what you keep here. You can
-                delete anything. You can export everything. This is your space
-                and you decide what it becomes.
+                You can keep what you love. You can delete what you outgrow.
+                This space will grow with you, just like you are meant to.
+              </p>
+              <p className="text-foreground italic">
+                Only save what you would want to remember forever.
               </p>
             </section>
 
             <section className="pt-8 border-t border-border/40 space-y-4">
-              <p className="text-foreground italic">
-                Only save what you want to remember forever.
-              </p>
               <p className="text-muted-foreground">
-                Happy Birthday, baby. This is your quiet corner of the internet.
+                Happy Birthday, baby. This little space was made with care, just for you.
               </p>
             </section>
+
           </div>
         </div>
       </main>

@@ -359,7 +359,7 @@ function GoalsPageContent() {
 
               <Button
                 onClick={openAddModal}
-                className="col-span-2 sm:col-span-1 w-full bg-black text-white hover:opacity-90 rounded-lg py-6"
+                className="col-span-2 sm:col-span-1 w-full bg-primary text-primary-foreground hover:opacity-90 hover:opacity-90 rounded-lg py-6"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Goal
@@ -605,7 +605,7 @@ function GoalsPageContent() {
 
                         <button
                           onClick={() => removeMilestoneFromModal(m.id)}
-                          className="text-neutral-500 hover:text-black"
+                          className="text-neutral-500 hover:text-foreground"
                           aria-label="Remove milestone"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -628,7 +628,7 @@ function GoalsPageContent() {
               </Button>
               <Button
                 onClick={saveGoal}
-                className="flex-1 bg-black text-white hover:opacity-90 py-6 rounded-lg"
+                className="flex-1 bg-primary text-primary-foreground hover:opacity-90 hover:opacity-90 py-6 rounded-lg"
               >
                 {editingId ? "Save changes" : "Save goal"}
               </Button>
@@ -654,7 +654,7 @@ function GoalsPageContent() {
             <div className="mt-6 flex justify-center">
               <Button
                 onClick={() => setCelebrate(null)}
-                className="bg-black text-white hover:opacity-90"
+                className="bg-primary text-primary-foreground hover:opacity-90 hover:opacity-90"
               >
                 Close
               </Button>

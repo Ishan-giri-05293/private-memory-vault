@@ -35,7 +35,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="font-sans">
+      <body className="font-sans bg-background text-foreground">
+
         <Navbar />
         <RabbitWrapper>{children}</RabbitWrapper>
         <Analytics />

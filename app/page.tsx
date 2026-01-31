@@ -10,16 +10,18 @@ export default function LandingPage() {
       <main className="flex-1 flex items-center justify-center px-6 pt-20 pb-20">
         <div className="max-w-3xl mx-auto text-center space-y-12">
           <div className="space-y-6">
-            <p className="text-4xl md:text-5xl lg:text-6xl font-light leading-tight text-balance text-foreground">
+            <p className="text-4xl md:text-5xl lg:text-6xl font-light leading-tight">
               A quiet place to hold <span className="italic">your moments</span>
             </p>
 
-            <p className="text-base md:text-lg font-light text-muted-foreground leading-relaxed max-w-2xl mx-auto text-pretty">
+            <p className="text-base md:text-lg font-light pink-muted leading-relaxed max-w-2xl mx-auto">
               Store the memories that matter.
               <br />
               Keep the promises you make.
               <br />
-              <span className="font-normal">Build a vault of your life.</span>
+              <span className="font-normal text-black/80">
+                Build a vault of your life.
+              </span>
             </p>
           </div>
 
@@ -28,7 +30,7 @@ export default function LandingPage() {
             <Button
               asChild
               size="lg"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-light text-base px-10 py-7 rounded-lg transition-all"
+              className="w-full pink-button text-base px-10 py-7"
             >
               <Link href="/vault">Enter Your Space</Link>
             </Button>
@@ -37,19 +39,18 @@ export default function LandingPage() {
               asChild
               size="lg"
               variant="outline"
-              className="w-full border-border bg-transparent hover:bg-accent/50 text-foreground font-light text-base px-10 py-7 rounded-lg transition-all"
+              className="w-full border border-[#f3d6dc] bg-white/60 hover:bg-white text-base px-10 py-7 rounded-lg"
             >
               <Link href="/goals?new=1">Add a Goal</Link>
-
             </Button>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="py-8 px-6 border-t border-border/40">
+      <footer className="py-8 px-6 border-t border-[#f3d6dc]">
         <div className="container mx-auto text-center">
-          <p className="text-sm font-light text-muted-foreground">
+          <p className="text-sm font-light pink-muted">
             This will grow with you.
           </p>
         </div>
