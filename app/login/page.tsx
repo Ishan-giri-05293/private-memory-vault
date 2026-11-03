@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,7 +13,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError("");
 
     if (!email.trim() || !password.trim()) {
@@ -34,7 +34,7 @@ export default function LoginPage() {
       document.cookie = `firebase-auth=${token}; path=/; max-age=86400; samesite=lax`;
 
       router.push("/");
-    } catch (err: any) {
+    } catch {
       setError("Hmm… that doesn’t look right 💭");
     } finally {
       setLoading(false);
@@ -42,65 +42,67 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-5 relative overflow-hidden">
-
-      {/* Soft glow background */}
-      <div className="absolute -top-32 -left-32 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
-      <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-accent/20 rounded-full blur-3xl" />
-
-      <div className="w-full max-w-sm bg-card/90 backdrop-blur p-7 rounded-3xl border border-border shadow-lg relative z-10">
-
-        {/* Title */}
-        <div className="text-center space-y-2 mb-8">
-          <h1 className="text-2xl font-light text-foreground tracking-wide">
-            Welcome Aru 💕
-          </h1>
-          <p className="text-sm font-light text-muted-foreground">
+    <main className="flex min-h-dvh items-center justify-center px-5 pb-40">
+      <div className="w-full max-w-sm">
+        <h1 className="page-title animate-pop mb-8 text-center">
+          Welcome
+          <br />
+          home, Aru
+        </h1>
+        <div
+          className="pixel-card animate-pop p-7"
+          style={{ "--delay": "0.1s" } as React.CSSProperties}
+        >
+          <p className="mb-6 text-center text-ink-soft">
             Your little corner of memories is waiting.
           </p>
+
+          <form onSubmit={handleLogin} className="space-y-4" noValidate>
+            <div>
+              <label htmlFor="email" className="field-label">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="field"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="field-label">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="field"
+              />
+            </div>
+
+            {error && (
+              <p role="alert" className="text-center text-sm font-semibold text-destructive">
+                {error}
+              </p>
+            )}
+
+            <button type="submit" disabled={loading} className="pixel-btn w-[calc(100%-6px)]">
+              {loading ? "Opening…" : "Enter"}
+            </button>
+          </form>
+
+          <p className="mt-4 text-center text-sm text-ink-soft">
+            Only you can see what’s inside.
+          </p>
         </div>
-
-        {/* Inputs */}
-        <div className="space-y-4">
-          <input
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            placeholder="Your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-border bg-card outline-none focus:ring-2 focus:ring-primary/40 transition"
-          />
-
-          <input
-            type="password"
-            autoComplete="current-password"
-            placeholder="Your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-border bg-card outline-none focus:ring-2 focus:ring-primary/40 transition"
-          />
-
-          {error && (
-            <p className="text-sm text-destructive font-light text-center">
-              {error}
-            </p>
-          )}
-
-          <Button
-            onClick={handleLogin}
-            disabled={loading}
-            className="w-full py-6 rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-all disabled:opacity-50 text-base"
-          >
-            {loading ? "Opening your space…" : "Enter Your Space"}
-          </Button>
-        </div>
-
-        {/* Footer */}
-        <p className="text-xs font-light text-muted-foreground text-center mt-6">
-          Only you can see what’s inside 🤍
-        </p>
       </div>
-    </div>
+    </main>
   );
 }

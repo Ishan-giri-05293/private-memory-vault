@@ -3,96 +3,89 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Pixel sky: lavender fading to pink, with peachy clouds */
 :root {
-  /* 🌸 Soft Girlish Pink Palette */
-  --background: oklch(0.97 0.03 350); /* soft blush pink */
-  --foreground: oklch(0.35 0.02 350); /* warm dark text */
+  --sky-1: #a98cf0;
+  --sky-2: #b595ef;
+  --sky-3: #c49eed;
+  --sky-4: #d4a8eb;
+  --sky-5: #e6b4e9;
 
-  --card: oklch(0.99 0.01 350);
-  --card-foreground: oklch(0.35 0.02 350);
+  --cloud-hi: #fff4ec;
+  --cloud-1: #ffdcd8;
+  --cloud-2: #fdbcd9;
+  --cloud-3: #ef9fdc;
+  --cloud-4: #cf8feb;
 
-  --popover: oklch(0.99 0.01 350);
-  --popover-foreground: oklch(0.35 0.02 350);
+  --paper: #fff8fb;
+  --pink: #ffa3cd;
+  --pink-deep: #e2589a;
+  --lav: #c3a9f7;
+  --ink: #3a1f57;
+  --ink-soft: #6f5390;
+  --line: #6e4c93;
 
-  --primary: oklch(0.72 0.16 350); /* main pink buttons */
-  --primary-foreground: oklch(1 0 0);
+  --background: var(--sky-3);
+  --foreground: var(--ink);
 
-  --secondary: oklch(0.9 0.04 350);
-  --secondary-foreground: oklch(0.35 0.02 350);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
 
-  --muted: oklch(0.92 0.02 350);
-  --muted-foreground: oklch(0.55 0.02 350);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
 
-  --accent: oklch(0.88 0.06 350);
-  --accent-foreground: oklch(0.35 0.02 350);
+  --primary: var(--pink);
+  --primary-foreground: var(--ink);
 
-  --destructive: oklch(0.55 0.15 25);
-  --destructive-foreground: oklch(1 0 0);
+  --secondary: var(--lav);
+  --secondary-foreground: var(--ink);
 
-  --border: oklch(0.9 0.02 350);
-  --input: oklch(0.93 0.02 350);
-  --ring: oklch(0.75 0.14 350);
+  --muted: #f6e8f3;
+  --muted-foreground: var(--ink-soft);
 
-  --chart-1: oklch(0.7 0.15 350);
-  --chart-2: oklch(0.75 0.12 20);
-  --chart-3: oklch(0.65 0.1 320);
-  --chart-4: oklch(0.85 0.1 60);
-  --chart-5: oklch(0.8 0.1 10);
+  --accent: #ffe3f0;
+  --accent-foreground: var(--ink);
 
-  --radius: 0.6rem;
+  --destructive: #c8325f;
+  --destructive-foreground: #ffffff;
 
-  --sidebar: oklch(0.95 0.03 350);
-  --sidebar-foreground: oklch(0.35 0.02 350);
-  --sidebar-primary: oklch(0.72 0.16 350);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.9 0.04 350);
-  --sidebar-accent-foreground: oklch(0.35 0.02 350);
-  --sidebar-border: oklch(0.9 0.02 350);
-  --sidebar-ring: oklch(0.75 0.14 350);
-}
+  --border: var(--line);
+  --input: #c7a9e3;
+  --ring: var(--pink-deep);
 
-.dark {
-  --background: oklch(0.18 0.03 350);
-  --foreground: oklch(0.95 0.02 350);
+  --chart-1: var(--pink);
+  --chart-2: var(--lav);
+  --chart-3: var(--cloud-1);
+  --chart-4: var(--cloud-3);
+  --chart-5: var(--sky-1);
 
-  --card: oklch(0.22 0.03 350);
-  --card-foreground: oklch(0.95 0.02 350);
+  --radius: 0px;
 
-  --popover: oklch(0.22 0.03 350);
-  --popover-foreground: oklch(0.95 0.02 350);
-
-  --primary: oklch(0.78 0.18 350);
-  --primary-foreground: oklch(0.18 0.03 350);
-
-  --secondary: oklch(0.28 0.03 350);
-  --secondary-foreground: oklch(0.95 0.02 350);
-
-  --muted: oklch(0.28 0.02 350);
-  --muted-foreground: oklch(0.7 0.02 350);
-
-  --accent: oklch(0.3 0.03 350);
-  --accent-foreground: oklch(0.95 0.02 350);
-
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.95 0.02 350);
-
-  --border: oklch(0.3 0.02 350);
-  --input: oklch(0.3 0.02 350);
-  --ring: oklch(0.55 0.14 350);
-
-  --sidebar: oklch(0.22 0.03 350);
-  --sidebar-foreground: oklch(0.95 0.02 350);
-  --sidebar-primary: oklch(0.78 0.18 350);
-  --sidebar-primary-foreground: oklch(0.18 0.03 350);
-  --sidebar-accent: oklch(0.3 0.03 350);
-  --sidebar-accent-foreground: oklch(0.95 0.02 350);
-  --sidebar-border: oklch(0.3 0.02 350);
-  --sidebar-ring: oklch(0.55 0.14 350);
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--pink);
+  --sidebar-primary-foreground: var(--ink);
+  --sidebar-accent: #ffe3f0;
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--pink-deep);
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-pixel: var(--font-pixelify), ui-monospace, monospace;
+
+  --color-sky-1: var(--sky-1);
+  --color-sky-5: var(--sky-5);
+  --color-paper: var(--paper);
+  --color-pink: var(--pink);
+  --color-pink-deep: var(--pink-deep);
+  --color-lav: var(--lav);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-cloud-1: var(--cloud-1);
+  --color-cloud-3: var(--cloud-3);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -119,10 +112,10 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
 
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -138,7 +131,199 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply font-sans text-ink antialiased;
+    background: var(--sky-3);
+  }
+  ::selection {
+    background: var(--pink);
+    color: var(--ink);
+  }
+}
+
+/*
+ * Pixel borders: four hard shadows leave the corners notched,
+ * like a box drawn on a pixel grid. --b is the border colour, --d the drop.
+ */
+@layer components {
+  .pixel-card {
+    --b: var(--line);
+    background: var(--paper);
+    box-shadow:
+      0 -4px 0 0 var(--b),
+      0 4px 0 0 var(--b),
+      -4px 0 0 0 var(--b),
+      4px 0 0 0 var(--b),
+      0 10px 0 0 rgb(58 31 87 / 0.18);
+    margin: 4px;
+  }
+
+  .pixel-btn {
+    --b: var(--line);
+    --bg: var(--pink);
+    --d: var(--pink-deep);
+    @apply inline-flex cursor-pointer select-none items-center justify-center gap-2 px-5 py-3 font-pixel text-lg leading-none text-ink transition-transform duration-75 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-offset-6 focus-visible:outline-pink-deep;
+    background: var(--bg);
+    margin: 3px 3px 9px;
+    box-shadow:
+      0 -3px 0 0 var(--b),
+      0 3px 0 0 var(--b),
+      -3px 0 0 0 var(--b),
+      3px 0 0 0 var(--b),
+      0 8px 0 0 var(--d);
+  }
+  .pixel-btn:hover {
+    filter: brightness(1.04);
+  }
+  .pixel-btn:active {
+    transform: translateY(4px);
+    box-shadow:
+      0 -3px 0 0 var(--b),
+      0 3px 0 0 var(--b),
+      -3px 0 0 0 var(--b),
+      3px 0 0 0 var(--b),
+      0 4px 0 0 var(--d);
+  }
+  .pixel-btn-lav {
+    --bg: var(--lav);
+    --d: #8e6fd8;
+  }
+  .pixel-btn-paper {
+    --bg: var(--paper);
+    --d: #d9bfe9;
+  }
+
+  .field {
+    --b: #c7a9e3;
+    @apply w-full bg-white px-4 py-3 text-base text-ink outline-none placeholder:text-ink-soft/60;
+    margin: 3px 0;
+    box-shadow:
+      0 -3px 0 0 var(--b),
+      0 3px 0 0 var(--b),
+      -3px 0 0 0 var(--b),
+      3px 0 0 0 var(--b);
+  }
+  .field:focus {
+    --b: var(--pink-deep);
+  }
+
+  .field-label {
+    @apply mb-2 block font-pixel text-base text-ink-soft;
+  }
+
+  .icon-button {
+    @apply inline-flex h-11 w-11 cursor-pointer items-center justify-center text-ink-soft transition-colors hover:bg-ink/5 hover:text-ink focus-visible:outline-3 focus-visible:outline-pink-deep;
+  }
+
+  .page {
+    @apply relative mx-auto w-full max-w-3xl px-5 pt-10 pb-52 md:pt-14 md:pb-44;
+  }
+
+  /* White pixel title with a hard plum shadow, like a game title screen */
+  .page-title {
+    @apply font-pixel text-5xl leading-none text-white md:text-6xl;
+    text-shadow:
+      3px 3px 0 var(--line),
+      0 3px 0 var(--line);
+  }
+
+  .page-sub {
+    @apply mt-4 font-pixel text-lg text-ink;
+  }
+}
+
+/* Sky motion */
+@keyframes drift {
+  from {
+    transform: translateX(-45vw);
+  }
+  to {
+    transform: translateX(115vw);
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes balloon {
+  0% {
+    transform: translate(0, 110px);
+  }
+  25% {
+    transform: translate(14px, -25vh);
+  }
+  50% {
+    transform: translate(-6px, -55vh);
+  }
+  75% {
+    transform: translate(12px, -85vh);
+  }
+  100% {
+    transform: translate(0, -120vh);
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-8deg);
+  }
+  75% {
+    transform: rotate(8deg);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-drift {
+  animation: drift var(--dur, 90s) linear var(--delay, 0s) infinite;
+}
+.animate-blink {
+  animation: blink var(--dur, 3s) steps(2, jump-none) var(--delay, 0s) infinite;
+}
+.animate-balloon {
+  animation: balloon var(--dur, 20s) linear var(--delay, 0s) infinite;
+}
+.animate-wiggle {
+  animation: wiggle 0.6s steps(4, end) infinite;
+}
+.animate-pop {
+  animation: pop-in 0.45s steps(6, end) both;
+  animation-delay: var(--delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift,
+  .animate-blink,
+  .animate-balloon {
+  animation: balloon var(--dur, 20s) linear var(--delay, 0s) infinite;
+}
+.animate-wiggle {
+  animation: wiggle 0.6s steps(4, end) infinite;
+}
+.animate-pop {
+    animation: none;
   }
 }

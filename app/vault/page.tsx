@@ -1,52 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  Plus,
-  Trash2,
-  Pencil,
-  Search,
-  CalendarDays,
-  List,
-  X,
-  Image as ImageIcon,
-  Video,
-} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Pencil, Search, Trash2 } from "lucide-react";
+import Sheet from "@/components/Sheet";
+import { PixelIcon } from "@/components/Pixel";
+import { dateToSortValue, prettyDate } from "@/lib/dates";
+import { readMemories, writeMemories, type Memory } from "@/lib/memories";
 
 type ViewMode = "List" | "Timeline";
 
-type Memory = {
-  id: string;
-  title: string;
-  date: string;
-  note: string;
-  createdAt: number;
-};
-
-const STORAGE_KEY = "arunima_memories_v1";
-
-function safeParse(raw: string | null): Memory[] {
-  try {
-    if (!raw) return [];
-    const data = JSON.parse(raw);
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-}
-
-function dateToSortValue(date: string) {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    const t = new Date(date).getTime();
-    return isNaN(t) ? Number.POSITIVE_INFINITY : t;
-  }
-  return Number.POSITIVE_INFINITY;
-}
-
 export default function VaultPage() {
   const [memories, setMemories] = useState<Memory[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -54,30 +19,26 @@ export default function VaultPage() {
   const [date, setDate] = useState("");
   const [note, setNote] = useState("");
 
-  // media (UI only for now, no storage)
-  const [mediaType, setMediaType] = useState<"none" | "image" | "video">("none");
-  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
-
   const [search, setSearch] = useState("");
   const [view, setView] = useState<ViewMode>("List");
 
   // Load
   useEffect(() => {
-    setMemories(safeParse(localStorage.getItem(STORAGE_KEY)));
+    setMemories(readMemories());
+    setLoaded(true);
   }, []);
 
-  // Save
+  // Save (only after loading, so an empty first render never overwrites her memories)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(memories));
-  }, [memories]);
+    if (!loaded) return;
+    writeMemories(memories);
+  }, [memories, loaded]);
 
   const openAdd = () => {
     setEditingId(null);
     setTitle("");
     setDate("");
     setNote("");
-    setMediaType("none");
-    setMediaPreview(null);
     setIsOpen(true);
   };
 
@@ -86,31 +47,10 @@ export default function VaultPage() {
     setTitle(m.title);
     setDate(m.date === "No date" ? "" : m.date);
     setNote(m.note);
-    setMediaType("none");
-    setMediaPreview(null);
     setIsOpen(true);
   };
 
-  const closeModal = () => setIsOpen(false);
-
-  const onPickMedia = (file: File | null) => {
-    if (!file) return;
-
-    const isVideo = file.type.startsWith("video/");
-    const isImage = file.type.startsWith("image/");
-
-    if (!isVideo && !isImage) return;
-
-    const url = URL.createObjectURL(file);
-    setMediaPreview(url);
-    setMediaType(isVideo ? "video" : "image");
-  };
-
-  const clearMedia = () => {
-    if (mediaPreview) URL.revokeObjectURL(mediaPreview);
-    setMediaPreview(null);
-    setMediaType("none");
-  };
+  const closeModal = useCallback(() => setIsOpen(false), []);
 
   const saveMemory = () => {
     if (!title.trim()) return;
@@ -140,7 +80,6 @@ export default function VaultPage() {
     }
 
     setIsOpen(false);
-    clearMedia();
   };
 
   const deleteMemory = (id: string) => {
@@ -167,246 +106,202 @@ export default function VaultPage() {
     return filtered;
   }, [filtered, view]);
 
+  const memoryCard = (m: Memory) => (
+    <article className="pixel-card flex h-[calc(100%-8px)] flex-col px-5 py-5">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="font-pixel text-base text-pink-deep">
+          {m.date === "No date" ? "sometime" : prettyDate(m.date)}
+        </p>
+        {m.tag && (
+          <span className="bg-lav/50 px-2 py-0.5 font-pixel text-xs text-ink">
+            {m.tag === "truth" ? "truth" : "dare"}
+          </span>
+        )}
+      </div>
+      <h3 className="mt-1 text-lg font-bold leading-snug text-ink">{m.title}</h3>
+      {m.note && (
+        <p className="mt-2 whitespace-pre-line leading-relaxed text-ink-soft">{m.note}</p>
+      )}
+      <div className="mt-auto flex justify-end gap-1 pt-3">
+        <button
+          className="icon-button"
+          onClick={() => openEdit(m)}
+          aria-label={`Edit ${m.title}`}
+        >
+          <Pencil className="h-4 w-4" />
+        </button>
+        <button
+          className="icon-button hover:text-destructive"
+          onClick={() => deleteMemory(m.id)}
+          aria-label={`Delete ${m.title}`}
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      </div>
+    </article>
+  );
+
   return (
-    <div className="min-h-screen">
-      <main className="container mx-auto px-6 pt-20 pb-20 max-w-5xl space-y-10">
-        {/* Header */}
-        <div className="space-y-3">
-          <h2 className="text-3xl md:text-4xl font-light text-foreground">
-            Your Memory Vault
-          </h2>
+    <main className="page max-w-5xl">
+      <header className="text-center">
+        <h1 className="page-title">Vault</h1>
+        <p className="page-sub">only save what you want to remember forever</p>
+      </header>
 
-          <p className="text-base font-light text-muted-foreground max-w-2xl leading-relaxed">
-            Each moment preserved with care. A collection that grows with you.
-          </p>
-
-          {/* QUALITY FILTER LINE */}
-          <p className="text-sm font-light text-foreground/70">
-            Only save what you want to remember forever.
-          </p>
+      {/* Controls */}
+      <div className="mx-auto mt-10 flex max-w-2xl flex-col gap-4 sm:flex-row sm:items-start">
+        <div className="relative flex-1">
+          <Search
+            className="pointer-events-none absolute left-4 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-ink-soft"
+            aria-hidden
+          />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search memories…"
+            aria-label="Search memories"
+            className="field pl-11"
+          />
         </div>
 
-        {/* Controls (phone first layout) */}
-        <div className="flex flex-col gap-4">
-          {/* Search */}
-          <div className="relative w-full">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex items-start gap-3">
+          <div role="tablist" aria-label="View" className="flex flex-1 bg-paper p-1 outline-3 outline-line/30">
+            {(["List", "Timeline"] as ViewMode[]).map((v) => (
+              <button
+                key={v}
+                role="tab"
+                aria-selected={view === v}
+                onClick={() => setView(v)}
+                className={`flex-1 cursor-pointer px-4 py-2 font-pixel text-base transition-colors ${
+                  view === v ? "bg-pink text-ink" : "text-ink-soft"
+                }`}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+
+          <button onClick={openAdd} className="pixel-btn -mt-[3px] px-4">
+            + Add
+          </button>
+        </div>
+      </div>
+
+      {/* Memories */}
+      <section className="mt-8">
+        {!loaded ? null : sorted.length === 0 ? (
+          <div className="pixel-card mx-auto max-w-md px-6 py-10 text-center">
+            <PixelIcon name="heart" size={4} className="mx-auto text-pink" />
+            <p className="mt-4 font-pixel text-2xl text-ink">
+              {search ? "nothing found" : "nothing here yet"}
+            </p>
+            <p className="mt-2 text-ink-soft">
+              {search
+                ? "Try another word."
+                : "Start with one moment you'd want to keep forever."}
+            </p>
+          </div>
+        ) : view === "List" ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {sorted.map((m, i) => (
+              <div
+                key={m.id}
+                className="animate-pop"
+                style={{ "--delay": `${Math.min(i, 8) * 0.05}s` } as React.CSSProperties}
+              >
+                {memoryCard(m)}
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Timeline: a dotted pixel path
+          <ol className="relative mx-auto max-w-2xl space-y-5 pl-10">
+            <span
+              aria-hidden
+              className="absolute bottom-2 left-[13px] top-2 w-1"
+              style={{
+                background:
+                  "repeating-linear-gradient(to bottom, var(--paper) 0 8px, transparent 8px 16px)",
+              }}
+            />
+            {sorted.map((m, i) => (
+              <li
+                key={m.id}
+                className="animate-pop relative"
+                style={{ "--delay": `${Math.min(i, 8) * 0.05}s` } as React.CSSProperties}
+              >
+                <span aria-hidden className="absolute -left-[36px] top-5 text-pink-deep">
+                  <PixelIcon name="heart" size={2} />
+                </span>
+                {memoryCard(m)}
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
+      <Sheet
+        open={isOpen}
+        onClose={closeModal}
+        title={editingId ? "Edit memory" : "New memory"}
+        footer={
+          <>
+            <button className="pixel-btn pixel-btn-paper flex-1" onClick={closeModal}>
+              Cancel
+            </button>
+            <button
+              className="pixel-btn flex-1"
+              onClick={saveMemory}
+              disabled={!title.trim()}
+            >
+              Save
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-5">
+          <div>
+            <label htmlFor="m-title" className="field-label">
+              What happened?
+            </label>
             <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search memories…"
-              className="w-full pl-9 pr-3 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-neutral-200"
+              id="m-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Our first sunset together"
+              className="field"
             />
           </div>
 
-          {/* Buttons row */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              onClick={openAdd}
-              className="w-full sm:w-auto bg-primary text-primary-foreground hover:opacity-90 hover:opacity-90 rounded-lg py-6"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Memory
-            </Button>
-
-            <Button
-              variant="outline"
-              className="w-full sm:w-auto border-border bg-transparent hover:bg-accent/50 rounded-lg py-6"
-              onClick={() => setView(view === "List" ? "Timeline" : "List")}
-            >
-              {view === "List" ? (
-                <>
-                  <CalendarDays className="w-4 h-4 mr-2" /> Timeline
-                </>
-              ) : (
-                <>
-                  <List className="w-4 h-4 mr-2" /> List
-                </>
-              )}
-            </Button>
+          <div>
+            <label htmlFor="m-date" className="field-label">
+              When?
+            </label>
+            <input
+              id="m-date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              placeholder="2025-03-15 or March 2025"
+              className="field"
+            />
           </div>
+
+          <div>
+            <label htmlFor="m-note" className="field-label">
+              A little note
+            </label>
+            <textarea
+              id="m-note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="What made it special…"
+              className="field min-h-[110px] resize-y"
+            />
+          </div>
+
+          <p className="text-sm text-ink-soft">Photos and videos are coming soon.</p>
         </div>
-
-        {/* Empty */}
-        {sorted.length === 0 ? (
-          <Card className="p-10 text-center border-border">
-            <p className="text-foreground font-light">No memories yet.</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Start with one moment you’d want to keep forever.
-            </p>
-          </Card>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {sorted.map((m) => (
-              <Card
-                key={m.id}
-                className="p-7 bg-card hover:bg-accent/30 border-border transition-all"
-              >
-                <div className="space-y-4">
-                  {/* Placeholder for future media */}
-                  <div className="aspect-[4/3] bg-muted/30 rounded-lg flex items-center justify-center">
-                    <span className="text-xs text-muted-foreground font-light">
-                      Media will live here
-                    </span>
-                  </div>
-
-                  <div className="space-y-1">
-                    <h3 className="text-base font-light text-foreground">
-                      {m.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">{m.date}</p>
-                  </div>
-
-                  {m.note && (
-                    <p className="text-sm text-foreground/80 leading-relaxed">
-                      {m.note}
-                    </p>
-                  )}
-
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      variant="outline"
-                      className="border-border bg-transparent hover:bg-accent/50"
-                      onClick={() => openEdit(m)}
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="border-border bg-transparent hover:bg-accent/50"
-                      onClick={() => deleteMemory(m.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </main>
-
-      {/* Add/Edit Modal (phone-first) */}
-      {isOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/40 flex items-end sm:items-center justify-center">
-          <div className="w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl border border-border shadow-lg p-5 sm:p-6">
-            <div className="flex justify-between items-start gap-3 mb-5">
-              <div>
-                <h3 className="text-lg font-light text-foreground">
-                  {editingId ? "Edit memory" : "Add a memory"}
-                </h3>
-                <p className="text-xs text-muted-foreground font-light mt-1">
-                  Save only what you want to remember forever.
-                </p>
-              </div>
-
-              <button
-                onClick={closeModal}
-                className="p-2 rounded-md hover:bg-neutral-100 text-neutral-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Media picker (UI only for now) */}
-            <div className="space-y-3 mb-5">
-              <p className="text-xs font-light text-muted-foreground">
-                Photos & videos (coming soon)
-              </p>
-
-              <div className="flex gap-3">
-                <label className="flex-1 cursor-pointer">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => onPickMedia(e.target.files?.[0] || null)}
-                  />
-                  <div className="w-full border border-border rounded-lg py-3 flex items-center justify-center gap-2 hover:bg-accent/40">
-                    <ImageIcon className="w-4 h-4" />
-                    <span className="text-sm font-light">Photo</span>
-                  </div>
-                </label>
-
-                <label className="flex-1 cursor-pointer">
-                  <input
-                    type="file"
-                    accept="video/*"
-                    className="hidden"
-                    onChange={(e) => onPickMedia(e.target.files?.[0] || null)}
-                  />
-                  <div className="w-full border border-border rounded-lg py-3 flex items-center justify-center gap-2 hover:bg-accent/40">
-                    <Video className="w-4 h-4" />
-                    <span className="text-sm font-light">Video</span>
-                  </div>
-                </label>
-              </div>
-
-              {mediaPreview && (
-                <div className="border border-border rounded-xl overflow-hidden">
-                  {mediaType === "image" ? (
-                    <img src={mediaPreview} alt="preview" className="w-full" />
-                  ) : (
-                    <video src={mediaPreview} controls className="w-full" />
-                  )}
-
-                  <div className="px-3 py-2 flex items-center justify-between">
-                    <p className="text-xs text-muted-foreground">
-                      Preview only (upload enabled later)
-                    </p>
-                    <button
-                      onClick={clearMedia}
-                      className="text-xs text-neutral-600 hover:text-foreground"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Fields */}
-            <div className="space-y-4">
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Memory title"
-                className="w-full px-3 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-neutral-200"
-              />
-
-              <input
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                placeholder="Date (ex: 2024-03-15 or March 2024)"
-                className="w-full px-3 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-neutral-200"
-              />
-
-              <textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="A short note (optional)"
-                className="w-full min-h-[100px] px-3 py-3 border border-border rounded-lg outline-none focus:ring-2 focus:ring-neutral-200"
-              />
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <Button
-                variant="outline"
-                className="flex-1 border-border bg-transparent hover:bg-accent/50 py-6 rounded-lg"
-                onClick={closeModal}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="flex-1 bg-primary text-primary-foreground hover:opacity-90 hover:opacity-90 py-6 rounded-lg"
-                onClick={saveMemory}
-              >
-                Save
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      </Sheet>
+    </main>
   );
 }

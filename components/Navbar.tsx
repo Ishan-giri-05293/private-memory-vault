@@ -4,46 +4,29 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { useEffect, useRef, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { PixelIcon, type SpriteName } from "@/components/Pixel";
+import { isBirthday } from "@/lib/birthday";
+
+const LINKS: { href: string; label: string; short: string; icon: SpriteName }[] = [
+  { href: "/vault", label: "Vault", short: "Vault", icon: "book" },
+  { href: "/goals", label: "Goals", short: "Goals", icon: "star" },
+  { href: "/truth-or-dare", label: "Truth or Dare", short: "T or D", icon: "dice" },
+  { href: "/notes", label: "Letters", short: "Letters", icon: "envelope" },
+  { href: "/promise", label: "Promise", short: "Promise", icon: "heart" },
+];
 
 export default function Navbar() {
   const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [birthday, setBirthday] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       setIsLoggedIn(!!user);
     });
+    setBirthday(isBirthday());
     return () => unsub();
-  }, []);
-
-  useEffect(() => {
-    // close menu when route changes
-    setOpen(false);
-  }, [pathname]);
-
-  // close on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (!open) return;
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
-
-  // close on ESC
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
   }, []);
 
   if (!isLoggedIn || pathname === "/login") return null;
@@ -54,101 +37,83 @@ export default function Navbar() {
     window.location.href = "/login";
   };
 
-  const linkClass = (href: string) =>
-    `px-3 py-2 rounded-md text-sm transition whitespace-nowrap outline-none focus:outline-none focus:ring-0 ${
-      pathname === href
-        ? "bg-black text-white"
-        : "text-neutral-600 hover:text-black hover:bg-neutral-100"
-    }`;
+  const isActive = (href: string) => pathname.startsWith(href);
 
   return (
-    <nav className="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-
-      <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Brand */}
-        <Link href="/" className="font-semibold text-base text-black">
-          A Space for You
-        </Link>
-
-        {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-1">
-          <Link href="/vault" className={linkClass("/vault")}>
-            Vault
-          </Link>
-          <Link href="/goals" className={linkClass("/goals")}>
-            Goals
-          </Link>
-          <Link href="/promise" className={linkClass("/promise")}>
-            Promise
-          </Link>
-
-          <button
-            onClick={logout}
-            className="ml-2 px-3 py-2 rounded-md text-sm text-neutral-600 hover:text-black hover:bg-neutral-100 outline-none focus:outline-none focus:ring-0"
+    <>
+      {/* Top bar */}
+      <nav className="sticky top-0 z-50 border-b-4 border-line bg-paper">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-2">
+          <Link
+            href="/"
+            className="flex items-center gap-2 px-1 py-2 font-pixel text-xl text-ink"
           >
-            Log out
-          </button>
-        </div>
+            <PixelIcon name="heart" size={2} className="text-pink-deep" />
+            A Space for You
+          </Link>
 
-        {/* Mobile menu button */}
-        <button
-          className="md:hidden p-2 rounded-md hover:bg-neutral-100 active:scale-[0.98] transition"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
-        >
-          <span
-            className={`inline-flex transition-transform duration-200 ${
-              open ? "rotate-90" : "rotate-0"
-            }`}
-          >
-            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </span>
-        </button>
-      </div>
+          <div className="hidden items-center gap-1 md:flex">
+            {LINKS.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                aria-current={isActive(href) ? "page" : undefined}
+                className={`px-3 py-2 font-pixel text-lg transition-colors ${
+                  isActive(href)
+                    ? "bg-pink text-ink"
+                    : "text-ink-soft hover:bg-pink/30 hover:text-ink"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
 
-      {/* Mobile dropdown (animated) */}
-      <div
-        className={`md:hidden overflow-hidden transition-all duration-200 ${
-          open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-        }`}
-      >
-        <div
-          ref={menuRef}
-          className={`px-4 pb-4 transition-all duration-200 ${
-            open ? "translate-y-0" : "-translate-y-2"
-          }`}
-        >
-          <div className="mt-2 rounded-2xl border border-border bg-white shadow-sm p-2">
-            <Link
-              href="/vault"
-              className="block w-full px-3 py-3 rounded-xl hover:bg-neutral-100 transition"
-            >
-              Vault
-            </Link>
-            <Link
-              href="/goals"
-              className="block w-full px-3 py-3 rounded-xl hover:bg-neutral-100 transition"
-            >
-              Goals
-            </Link>
-            <Link
-              href="/promise"
-              className="block w-full px-3 py-3 rounded-xl hover:bg-neutral-100 transition"
-            >
-              Promise
-            </Link>
-
-            <div className="h-px bg-border my-1" />
-
+          <div className="flex items-center gap-1">
+            {birthday && (
+              <Link
+                href="/birthday"
+                aria-current={isActive("/birthday") ? "page" : undefined}
+                className="flex items-center gap-2 bg-pink px-3 py-2 font-pixel text-base text-ink"
+              >
+                <PixelIcon name="gift" size={2} />
+                Gifts
+              </Link>
+            )}
             <button
               onClick={logout}
-              className="w-full text-left px-3 py-3 rounded-xl text-neutral-700 hover:bg-neutral-100 transition"
+              className="cursor-pointer px-3 py-2 font-pixel text-base text-ink-soft transition-colors hover:bg-pink/30 hover:text-ink"
             >
               Log out
             </button>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Phone tab bar */}
+      <nav
+        aria-label="Main"
+        className="fixed inset-x-0 bottom-0 z-50 border-t-4 border-line bg-paper pb-[env(safe-area-inset-bottom)] md:hidden"
+      >
+        <div className="mx-auto grid h-[60px] max-w-md grid-cols-5">
+          {LINKS.map(({ href, short, icon }) => {
+            const active = isActive(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={active ? "page" : undefined}
+                className={`flex flex-col items-center justify-center gap-1.5 font-pixel text-[13px] leading-none transition-colors ${
+                  active ? "bg-pink text-ink" : "text-ink-soft"
+                }`}
+              >
+                <PixelIcon name={icon} size={2} />
+                {short}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 }
